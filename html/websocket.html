@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style type="text/css">
+        .mid{
+        position: absolute;
+            top: 42%;
+            left: 42%;
+        }
+        .down{
+            position:absolute;
+            top:74%;
+            left:2%;
+        }
+        .text{
+            width: 50%;
+            height: 200px;
+        }
+        .data{
+            width: 70%;
+            height: 400px;
+        }
+        .btn{
+            width: 50px;
+            height: 30px;
+        }
+    </style>
+    <script src="jquery-1.10.2.min.js"></script>
+    <script src="socket.io.js"></script>
+    <script type="text/javascript">
+        var name;
+        var data;
+        var socket;
+        $(function(){
+            $("#div3").hide();
+            $("#btn1").click(function(){
+                name=$("#txt1").val();
+                $("#div2").hide('slow');
+                showdialog(name);
+            });
+        });
+        function showdialog(name){
+            $("#username").text($("#username").text()+name);
+            $("#div3").show('slow');
+            socket = io.connect("ws://192.168.199.134:9988");
+            socket.emit("c",name);
+            socket.on("back",function(data){
+                $("#data").text($("#data").text()+"\r\n"+data);
+                var scrollTop = $("#data")[0].scrollHeight;
+                $("#data").scrollTop(scrollTop);
+            });
+        }
+        $(function(){
+            $("#btn2").click(function(){
+                fun();
+            });
+            $("#txt2").keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if(keycode=='13'){
+                    fun();event.preventDefault();
+                }
+            });
+        });
+        function fun(){
+            data=$('#txt2').val();
+            socket.emit('chat',name,data);
+            $('#txt2').val('');
+
+        }
+    </script>
+</head>
+<body>
+    <div id="div1" class="mid">
+        <div id="div2">
+            <label for="div2">请输入用户名</label><br>
+            <input type="text" id="txt1">
+            <input type="button" id="btn1" value="确定" class="btn">
+        </div>
+    </div>
+    <div id="div3">
+        <h2 id="username">用户名：</h2><br>
+        <div id="datadiv">
+            <textarea id="data" class="data"></textarea>
+        </div>
+
+        <div id="div4" >
+        <textarea id="txt2" class="text"></textarea>
+        <input type="button" id="btn2" value="发送" class="btn"></div>
+    </div>
+</body>
+</html>
